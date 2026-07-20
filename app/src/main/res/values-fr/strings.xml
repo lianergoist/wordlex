@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">Wordle Plus</string>
+    <string name="title_wordle">WORDLE</string>
+    <string name="msg_not_in_word_list">Pas dans la liste</string>
+    <string name="msg_win">Splendide !</string>
+    <string name="msg_game_over">Le mot était %1$s</string>
+    <string name="msg_try_word">Essaye : %1$s</string>
+    <string name="msg_letter_hint">Indice : \'%1$s\' est à la position %2$d</string>
+    <string name="dialog_title_possible_words">Mots possibles (%1$d)</string>
+    <string name="btn_close">Fermer</string>
+    <string name="btn_new_game">Nouveau jeu</string>
+    <string name="btn_hint">Indice</string>
+    <string name="content_desc_delete">Supprimer</string>
+    <string name="content_desc_enter">Entrer</string>
+    <string name="unknown_route">Route inconnue</string>
+    <string name="menu_settings">Paramètres</string>
+    <string name="menu_about">À propos</string>
+    <string name="about_title">À propos de Wordle Plus</string>
+    <string name="about_text">Wordle Plus est une version moderne du jeu de mots classique. Avec un dictionnaire local, un système d\'indices intelligent et une prise en charge de plusieurs langues.\n\nAmusez-vous bien !</string>
+    <string name="settings_title">Paramètres</string>
+    <string name="settings_language">Langue</string>
+    <string name="lang_en">Anglais</string>
+    <string name="lang_da">Danois</string>
+    <string name="lang_de">Allemand</string>
+    <string name="lang_fr">Français</string>
+    <string name="lang_es">Espagnol</string>
+    <string name="settings_import_words">Importer des mots</string>
+    <string name="import_dialog_title">Importer des mots</string>
+    <string name="import_dialog_text">Voulez-vous ajouter les nouveaux mots à la liste existante ou la remplacer ?</string>
+    <string name="btn_add">Ajouter</string>
+    <string name="btn_replace">Remplacer</string>
+    <string name="msg_import_success">%1$d mots importés avec succès</string>
+    <string name="msg_import_empty">Aucun mot valide de 5 lettres trouvé dans le fichier</string>
+</resources>

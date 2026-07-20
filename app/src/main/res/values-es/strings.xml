@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">Wordle Plus</string>
+    <string name="title_wordle">WORDLE</string>
+    <string name="msg_not_in_word_list">No está en la lista</string>
+    <string name="msg_win">¡Espléndido!</string>
+    <string name="msg_game_over">La palabra era %1$s</string>
+    <string name="msg_try_word">Prueba: %1$s</string>
+    <string name="msg_letter_hint">Pista: \'%1$s\' va en la posición %2$d</string>
+    <string name="dialog_title_possible_words">Palabras posibles (%1$d)</string>
+    <string name="btn_close">Cerrar</string>
+    <string name="btn_new_game">Nuevo juego</string>
+    <string name="btn_hint">Pista</string>
+    <string name="content_desc_delete">Borrar</string>
+    <string name="content_desc_enter">Enviar</string>
+    <string name="unknown_route">Ruta desconocida</string>
+    <string name="menu_settings">Ajustes</string>
+    <string name="menu_about">Acerca de</string>
+    <string name="about_title">Acerca de Wordle Plus</string>
+    <string name="about_text">Wordle Plus es una versión moderna del clásico juego de palabras. Cuenta con un diccionario local, un sistema de pistas inteligente y soporte para varios idiomas.\n\n¡Disfruta del desafío!</string>
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_language">Idioma</string>
+    <string name="lang_en">Inglés</string>
+    <string name="lang_da">Danés</string>
+    <string name="lang_de">Alemán</string>
+    <string name="lang_fr">Francés</string>
+    <string name="lang_es">Español</string>
+    <string name="settings_import_words">Importar palabras</string>
+    <string name="import_dialog_title">Importar palabras</string>
+    <string name="import_dialog_text">¿Desea añadir las nuevas palabras a la lista existente o reemplazarla?</string>
+    <string name="btn_add">Añadir</string>
+    <string name="btn_replace">Reemplazar</string>
+    <string name="msg_import_success">%1$d palabras importadas con éxito</string>
+    <string name="msg_import_empty">No se han encontrado palabras válidas de 5 letras en el archivo</string>
+</resources>

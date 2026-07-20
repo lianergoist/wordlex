@@ -6,35 +6,44 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import dk.rpix.wordle.data.Word
+import dk.rpix.wordle.R
 
 @Composable
 fun HintDialog(
-    possibleWords: List<Word>,
+    possibleWords: List<String>,
     onDismiss: () -> Unit
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Possible Words (${possibleWords.size})") },
+        title = { Text(stringResource(R.string.dialog_title_possible_words, possibleWords.size)) },
         text = {
-            Box(modifier = Modifier.heightIn(max = 400.dp)) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 400.dp),
+                color = MaterialTheme.colorScheme.surface,
+                shape = MaterialTheme.shapes.medium
+            ) {
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(8.dp)
                 ) {
                     items(possibleWords) { word ->
                         Text(
-                            text = word.word.uppercase(),
-                            style = MaterialTheme.typography.bodyLarge
+                            text = word,
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.fillMaxWidth()
                         )
                     }
                 }
             }
         },
         confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Close")
+            Button(onClick = onDismiss) {
+                Text(stringResource(R.string.btn_close))
             }
         }
     )

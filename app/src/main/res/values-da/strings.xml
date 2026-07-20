@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">Wordle Plus</string>
+    <string name="title_wordle">WORDLE</string>
+    <string name="msg_not_in_word_list">Ikke i ordlisten</string>
+    <string name="msg_win">Fantastisk!</string>
+    <string name="msg_game_over">Ordet var %1$s</string>
+    <string name="msg_try_word">Prøv: %1$s</string>
+    <string name="msg_letter_hint">Hint: \'%1$s\' hører til på position %2$d</string>
+    <string name="dialog_title_possible_words">Mulige ord (%1$d)</string>
+    <string name="btn_close">Luk</string>
+    <string name="btn_new_game">Nyt spil</string>
+    <string name="btn_hint">Hint</string>
+    <string name="content_desc_delete">Slet</string>
+    <string name="content_desc_enter">Bekræft</string>
+    <string name="unknown_route">Ukendt rute</string>
+    <string name="menu_settings">Indstillinger</string>
+    <string name="menu_about">Om</string>
+    <string name="about_title">Om Wordle Plus</string>
+    <string name="about_text">Wordle Plus er en moderne udgave af det klassiske ordspil. Indeholder en lokal ordbog, intelligent hint-system og understøttelse af flere sprog.\n\nGod fornøjelse!</string>
+    <string name="settings_title">Indstillinger</string>
+    <string name="settings_language">Sprog</string>
+    <string name="lang_en">Engelsk</string>
+    <string name="lang_da">Dansk</string>
+    <string name="lang_de">Tysk</string>
+    <string name="lang_fr">Fransk</string>
+    <string name="lang_es">Spansk</string>
+    <string name="settings_import_words">Importer ord</string>
+    <string name="import_dialog_title">Importer ord</string>
+    <string name="import_dialog_text">Vil du tilføje de nye ord til den eksisterende liste eller erstatte den?</string>
+    <string name="btn_add">Tilføj</string>
+    <string name="btn_replace">Erstat</string>
+    <string name="msg_import_success">Importerede %1$d ord med succes</string>
+    <string name="msg_import_empty">Ingen gyldige 5-bogstavs ord fundet i filen</string>
+</resources>

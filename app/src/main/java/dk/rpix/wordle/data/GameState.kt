@@ -9,5 +9,6 @@ data class GameState(
     val targetWord: String,
     val guesses: List<String>,
     val isGameOver: Boolean,
-    val isWon: Boolean
+    val isWon: Boolean,
+    val language: String
 )

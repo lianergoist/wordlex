@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">Wordle Plus</string>
+    <string name="title_wordle">WORDLE</string>
+    <string name="msg_not_in_word_list">Nicht in der Wortliste</string>
+    <string name="msg_win">Großartig!</string>
+    <string name="msg_game_over">Das Wort war %1$s</string>
+    <string name="msg_try_word">Versuch: %1$s</string>
+    <string name="msg_letter_hint">Hinweis: \'%1$s\' gehört an Position %2$d</string>
+    <string name="dialog_title_possible_words">Mögliche Wörter (%1$d)</string>
+    <string name="btn_close">Schließen</string>
+    <string name="btn_new_game">Neues Spiel</string>
+    <string name="btn_hint">Hinweis</string>
+    <string name="content_desc_delete">Löschen</string>
+    <string name="content_desc_enter">Bestätigen</string>
+    <string name="unknown_route">Unbekannte Route</string>
+    <string name="menu_settings">Einstellungen</string>
+    <string name="menu_about">Über</string>
+    <string name="about_title">Über Wordle Plus</string>
+    <string name="about_text">Wordle Plus ist eine moderne Version des klassischen Wortspiels. Mit lokalem Wörterbuch, intelligentem Hinweissystem und Unterstützung mehrerer Sprachen.\n\nViel Spaß!</string>
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_language">Sprache</string>
+    <string name="lang_en">Englisch</string>
+    <string name="lang_da">Dänisch</string>
+    <string name="lang_de">Deutsch</string>
+    <string name="lang_fr">Französisch</string>
+    <string name="lang_es">Spanisch</string>
+    <string name="settings_import_words">Wörter importieren</string>
+    <string name="import_dialog_title">Wörter importieren</string>
+    <string name="import_dialog_text">Möchten Sie die neuen Wörter zur vorhandenen Liste hinzufügen oder diese ersetzen?</string>
+    <string name="btn_add">Hinzufügen</string>
+    <string name="btn_replace">Ersetzen</string>
+    <string name="msg_import_success">%1$d Wörter erfolgreich importiert</string>
+    <string name="msg_import_empty">Keine gültigen 5-Buchstaben-Wörter in der Datei gefunden</string>
+</resources>
