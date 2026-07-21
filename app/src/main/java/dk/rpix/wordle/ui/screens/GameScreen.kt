@@ -36,13 +36,33 @@ fun GameScreen(viewModel: GameViewModel) {
     val snackbarHostState = remember { SnackbarHostState() }
     val adaptiveInfo = currentWindowAdaptiveInfo()
     val configuration = LocalConfiguration.current
-    val isLandscape = adaptiveInfo.windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.COMPACT
+    val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
     
-    // Dynamic sizing based on screen height
+    // Use Row layout only if in Landscape
+    val isWideLayout = isLandscape
+    
+    // Dynamic sizing for Portrait (Stacked)
     val isSmallHeight = configuration.screenHeightDp < 650
-    val portraitCellSize = if (isSmallHeight) 44.dp else 52.dp
-    val portraitKeyHeight = if (isSmallHeight) 48.dp else 56.dp
+    val isTabletPortrait = configuration.screenHeightDp >= 900 && !isWideLayout
+    
+    val portraitCellSize = when {
+        isTabletPortrait -> 64.dp
+        isSmallHeight -> 44.dp
+        else -> 52.dp
+    }
+    val portraitKeyHeight = when {
+        isTabletPortrait -> 72.dp
+        isSmallHeight -> 48.dp
+        else -> 56.dp
+    }
     val portraitSpacing = if (isSmallHeight) 6.dp else 8.dp
+    
+    // Dynamic sizing for Landscape/Wide (Side-by-side)
+    val isTabletWide = configuration.screenWidthDp >= 900
+    val landscapeCellSize = if (isTabletWide) 56.dp else 38.dp
+    val landscapeKeyHeight = if (isTabletWide) 64.dp else 42.dp
+    val landscapeKeyWidth = if (isTabletWide) 42.dp else 28.dp // for standard
+    val localizedLandscapeKeyWidth = if (isTabletWide) 34.dp else 22.dp // for da/de/es
     
     val context = LocalContext.current
     val filePickerLauncher = rememberLauncherForActivityResult(
@@ -358,35 +378,44 @@ fun GameScreen(viewModel: GameViewModel) {
             )
         }
 
-        if (isLandscape) {
+        if (isWideLayout) {
             Row(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding),
-                horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                WordleGrid(
-                    guesses = uiState.guesses,
-                    currentGuess = uiState.currentGuess,
-                    focusedIndex = uiState.focusedIndex,
-                    onCellClick = viewModel::onCellClick,
-                    cellSize = 38.dp,
-                    spacing = 4.dp,
-                    modifier = Modifier.padding(start = 32.dp)
-                )
-                Spacer(Modifier.width(20.dp))
-                WordleKeyboard(
-                    keyboardState = uiState.keyboardState,
-                    onLetterInput = viewModel::onLetterInput,
-                    onDelete = viewModel::onDelete,
-                    onSubmit = viewModel::onSubmit,
-                    keyWidth = if (language == "da" || language == "de") 22.dp else 28.dp,
-                    keyHeight = 42.dp,
-                    spacing = 4.dp,
-                    rows = keyboardRows,
-                    modifier = Modifier.wrapContentWidth()
-                )
+                // Left side: Grid centered in its half
+                Box(
+                    modifier = Modifier.weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    WordleGrid(
+                        guesses = uiState.guesses,
+                        currentGuess = uiState.currentGuess,
+                        focusedIndex = uiState.focusedIndex,
+                        onCellClick = viewModel::onCellClick,
+                        cellSize = landscapeCellSize,
+                        spacing = 4.dp
+                    )
+                }
+                
+                // Right side: Keyboard centered in its half
+                Box(
+                    modifier = Modifier.weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    WordleKeyboard(
+                        keyboardState = uiState.keyboardState,
+                        onLetterInput = viewModel::onLetterInput,
+                        onDelete = viewModel::onDelete,
+                        onSubmit = viewModel::onSubmit,
+                        keyWidth = if (language == "da" || language == "de" || language == "es") localizedLandscapeKeyWidth else landscapeKeyWidth,
+                        keyHeight = landscapeKeyHeight,
+                        spacing = 4.dp,
+                        rows = keyboardRows
+                    )
+                }
             }
         } else {
             Column(
@@ -412,7 +441,10 @@ fun GameScreen(viewModel: GameViewModel) {
                     onLetterInput = viewModel::onLetterInput,
                     onDelete = viewModel::onDelete,
                     onSubmit = viewModel::onSubmit,
-                    keyWidth = if (language == "da" || language == "de" || language == "es") 28.dp else 34.dp,
+                    keyWidth = if (language == "da" || language == "de" || language == "es") 
+                        (if (isTabletPortrait) 44.dp else 28.dp) 
+                    else 
+                        (if (isTabletPortrait) 54.dp else 34.dp),
                     keyHeight = portraitKeyHeight,
                     spacing = if (language == "da" || language == "de" || language == "es") 4.dp else 6.dp,
                     rows = keyboardRows

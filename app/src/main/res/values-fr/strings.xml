@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">Wordle Plus</string>
-    <string name="title_wordle">WORDLE</string>
+    <string name="app_name">WordleX</string>
+    <string name="title_wordle">WordleX</string>
     <string name="msg_not_in_word_list">Pas dans la liste</string>
     <string name="msg_win">Splendide !</string>
     <string name="msg_game_over">Le mot était %1$s</string>
@@ -15,8 +15,8 @@
     <string name="unknown_route">Route inconnue</string>
     <string name="menu_settings">Paramètres</string>
     <string name="menu_about">À propos</string>
-    <string name="about_title">À propos de Wordle Plus</string>
-    <string name="about_text">Wordle Plus est une version moderne du jeu de mots classique. Avec un dictionnaire local, un système d\'indices intelligent et une prise en charge de plusieurs langues.\n\nAmusez-vous bien !</string>
+    <string name="about_title">À propos de WordleX</string>
+    <string name="about_text">WordleX est une version moderne du jeu de mots classique. Avec un dictionnaire local, un système d\'indices intelligent et une prise en charge de plusieurs langues.\n\nAmusez-vous bien !</string>
     <string name="settings_title">Paramètres</string>
     <string name="settings_language">Langue</string>
     <string name="lang_en">Anglais</string>

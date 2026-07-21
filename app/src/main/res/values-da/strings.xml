@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">Wordle Plus</string>
-    <string name="title_wordle">WORDLE</string>
+    <string name="app_name">WordleX</string>
+    <string name="title_wordle">WordleX</string>
     <string name="msg_not_in_word_list">Ikke i ordlisten</string>
     <string name="msg_win">Fantastisk!</string>
     <string name="msg_game_over">Ordet var %1$s</string>
@@ -11,12 +11,12 @@
     <string name="btn_new_game">Nyt spil</string>
     <string name="btn_hint">Hint</string>
     <string name="content_desc_delete">Slet</string>
-    <string name="content_desc_enter">Bekræft</string>
+    <string name="content_desc_enter">Enter/string>
     <string name="unknown_route">Ukendt rute</string>
     <string name="menu_settings">Indstillinger</string>
     <string name="menu_about">Om</string>
-    <string name="about_title">Om Wordle Plus</string>
-    <string name="about_text">Wordle Plus er en moderne udgave af det klassiske ordspil. Indeholder en lokal ordbog, intelligent hint-system og understøttelse af flere sprog.\n\nGod fornøjelse!</string>
+    <string name="about_title">Om WordleX</string>
+    <string name="about_text">WordleX er en moderne udgave af det klassiske ordspil. Indeholder en lokal ordbog, intelligent hint-system og understøttelse af flere sprog.\n\nGod fornøjelse!</string>
     <string name="settings_title">Indstillinger</string>
     <string name="settings_language">Sprog</string>
     <string name="lang_en">Engelsk</string>

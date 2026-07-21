@@ -22,5 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "wordle"
+rootProject.name = "wordlex"
 include(":app")
