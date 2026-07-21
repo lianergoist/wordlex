@@ -1,10 +1,14 @@
 package dk.rpix.wordle.ui.screens
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Help
 import androidx.compose.material.icons.rounded.Lightbulb
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material3.*
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
@@ -12,6 +16,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,12 +28,6 @@ import dk.rpix.wordle.game.GameViewModel
 import dk.rpix.wordle.ui.asString
 import dk.rpix.wordle.ui.components.WordleGrid
 import dk.rpix.wordle.ui.components.WordleKeyboard
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.material.icons.rounded.MoreVert
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,7 +35,14 @@ fun GameScreen(viewModel: GameViewModel) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val adaptiveInfo = currentWindowAdaptiveInfo()
+    val configuration = LocalConfiguration.current
     val isLandscape = adaptiveInfo.windowSizeClass.windowWidthSizeClass != WindowWidthSizeClass.COMPACT
+    
+    // Dynamic sizing based on screen height
+    val isSmallHeight = configuration.screenHeightDp < 650
+    val portraitCellSize = if (isSmallHeight) 44.dp else 52.dp
+    val portraitKeyHeight = if (isSmallHeight) 48.dp else 56.dp
+    val portraitSpacing = if (isSmallHeight) 6.dp else 8.dp
     
     val context = LocalContext.current
     val filePickerLauncher = rememberLauncherForActivityResult(
@@ -51,7 +58,6 @@ fun GameScreen(viewModel: GameViewModel) {
         }
     }
 
-    val configuration = LocalConfiguration.current
     val language = configuration.locales[0].language
 
     val keyboardRows = when (language) {
@@ -81,8 +87,6 @@ fun GameScreen(viewModel: GameViewModel) {
             "ZXCVBNM".toList()
         )
     }
-
-    val isLocalized = language in listOf("da", "de", "fr", "es")
 
     val currentMessage = uiState.message?.asString()
 
@@ -175,7 +179,47 @@ fun GameScreen(viewModel: GameViewModel) {
                 title = { Text(stringResource(R.string.settings_title)) },
                 text = {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(stringResource(R.string.settings_language), style = MaterialTheme.typography.labelLarge)
+                        val currentLangLabel = when (language) {
+                            "da" -> stringResource(R.string.lang_da)
+                            "de" -> stringResource(R.string.lang_de)
+                            "fr" -> stringResource(R.string.lang_fr)
+                            "es" -> stringResource(R.string.lang_es)
+                            else -> stringResource(R.string.lang_en)
+                        }
+                        
+                        SettingsItem(
+                            headline = stringResource(R.string.settings_language),
+                            subtext = currentLangLabel,
+                            onClick = {
+                                viewModel.dismissSettingsDialog()
+                                viewModel.showLanguageSelectionDialog()
+                            }
+                        )
+                        
+                        SettingsItem(
+                            headline = stringResource(R.string.settings_import_words),
+                            subtext = "",
+                            onClick = {
+                                viewModel.dismissSettingsDialog()
+                                viewModel.showImportSettingsDialog()
+                            }
+                        )
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = viewModel::dismissSettingsDialog) {
+                        Text(stringResource(R.string.btn_close))
+                    }
+                }
+            )
+        }
+
+        if (uiState.showLanguageSelectionDialog) {
+            AlertDialog(
+                onDismissRequest = viewModel::dismissLanguageSelectionDialog,
+                title = { Text(stringResource(R.string.settings_language)) },
+                text = {
+                    Column {
                         val languages = listOf(
                             "en" to stringResource(R.string.lang_en),
                             "da" to stringResource(R.string.lang_da),
@@ -188,54 +232,108 @@ fun GameScreen(viewModel: GameViewModel) {
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable { viewModel.onLanguageSelected(code) }
-                                    .padding(vertical = 2.dp), // Even tighter
+                                    .padding(vertical = 4.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 RadioButton(
                                     selected = language == code,
                                     onClick = { viewModel.onLanguageSelected(code) },
-                                    modifier = Modifier.size(32.dp) // Smaller radio button area
+                                    modifier = Modifier.size(32.dp)
                                 )
                                 Spacer(Modifier.width(4.dp))
                                 Text(label, style = MaterialTheme.typography.bodyMedium)
                             }
                         }
-                        
-                        Divider(modifier = Modifier.padding(vertical = 8.dp))
-                        
-                        Button(
-                            onClick = { filePickerLauncher.launch("text/plain") },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(stringResource(R.string.settings_import_words))
-                        }
                     }
                 },
                 confirmButton = {
-                    TextButton(onClick = viewModel::dismissSettingsDialog) {
+                    TextButton(onClick = viewModel::dismissLanguageSelectionDialog) {
                         Text(stringResource(R.string.btn_close))
                     }
                 }
             )
         }
 
-        if (uiState.showImportOptionsDialog) {
+        if (uiState.showImportSettingsDialog) {
             AlertDialog(
-                onDismissRequest = viewModel::dismissImportOptionsDialog,
+                onDismissRequest = viewModel::dismissImportSettingsDialog,
                 title = { Text(stringResource(R.string.import_dialog_title)) },
-                text = { Text(stringResource(R.string.import_dialog_text)) },
-                confirmButton = {
-                    Row {
-                        TextButton(onClick = { viewModel.confirmImport(replace = false) }) {
-                            Text(stringResource(R.string.btn_add))
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Text(stringResource(R.string.settings_language), style = MaterialTheme.typography.labelLarge)
+                        val languages = listOf(
+                            "en" to stringResource(R.string.lang_en),
+                            "da" to stringResource(R.string.lang_da),
+                            "de" to stringResource(R.string.lang_de),
+                            "fr" to stringResource(R.string.lang_fr),
+                            "es" to stringResource(R.string.lang_es)
+                        )
+                        
+                        // Language Selection for Import
+                        Column {
+                            languages.forEach { (code, label) ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable { viewModel.onImportLanguageChanged(code) }
+                                        .padding(vertical = 2.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    RadioButton(
+                                        selected = uiState.importSettingsLanguage == code,
+                                        onClick = { viewModel.onImportLanguageChanged(code) },
+                                        modifier = Modifier.size(32.dp)
+                                    )
+                                    Spacer(Modifier.width(4.dp))
+                                    Text(label, style = MaterialTheme.typography.bodySmall)
+                                }
+                            }
                         }
-                        TextButton(onClick = { viewModel.confirmImport(replace = true) }) {
-                            Text(stringResource(R.string.btn_replace))
+                        
+                        HorizontalDivider()
+                        
+                        // Add/Replace Selection
+                        Column {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { viewModel.onImportReplaceChanged(false) }
+                                    .padding(vertical = 2.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                RadioButton(
+                                    selected = !uiState.importSettingsReplace,
+                                    onClick = { viewModel.onImportReplaceChanged(false) },
+                                    modifier = Modifier.size(32.dp)
+                                )
+                                Spacer(Modifier.width(4.dp))
+                                Text(stringResource(R.string.btn_add), style = MaterialTheme.typography.bodySmall)
+                            }
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { viewModel.onImportReplaceChanged(true) }
+                                    .padding(vertical = 2.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                RadioButton(
+                                    selected = uiState.importSettingsReplace,
+                                    onClick = { viewModel.onImportReplaceChanged(true) },
+                                    modifier = Modifier.size(32.dp)
+                                )
+                                Spacer(Modifier.width(4.dp))
+                                Text(stringResource(R.string.btn_replace), style = MaterialTheme.typography.bodySmall)
+                            }
                         }
                     }
                 },
+                confirmButton = {
+                    Button(onClick = { filePickerLauncher.launch("text/plain") }) {
+                        Text(stringResource(R.string.settings_import_words))
+                    }
+                },
                 dismissButton = {
-                    TextButton(onClick = viewModel::dismissImportOptionsDialog) {
+                    TextButton(onClick = viewModel::dismissImportSettingsDialog) {
                         Text(stringResource(R.string.btn_close))
                     }
                 }
@@ -248,7 +346,7 @@ fun GameScreen(viewModel: GameViewModel) {
                 title = { Text(stringResource(R.string.confirm_word_list_title)) },
                 text = { Text(stringResource(R.string.confirm_word_list_text)) },
                 confirmButton = {
-                    Button(onClick = viewModel::showMatchingWords) {
+                    Button(onClick = { viewModel.showMatchingWords() }) {
                         Text(stringResource(R.string.btn_yes))
                     }
                 },
@@ -283,7 +381,7 @@ fun GameScreen(viewModel: GameViewModel) {
                     onLetterInput = viewModel::onLetterInput,
                     onDelete = viewModel::onDelete,
                     onSubmit = viewModel::onSubmit,
-                    keyWidth = if (language == "da" || language == "de") 22.dp else 28.dp, // Shrink keys if more letters
+                    keyWidth = if (language == "da" || language == "de") 22.dp else 28.dp,
                     keyHeight = 42.dp,
                     spacing = 4.dp,
                     rows = keyboardRows,
@@ -295,16 +393,18 @@ fun GameScreen(viewModel: GameViewModel) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .padding(bottom = 16.dp),
+                    .padding(bottom = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(8.dp))
                 WordleGrid(
                     guesses = uiState.guesses,
                     currentGuess = uiState.currentGuess,
                     focusedIndex = uiState.focusedIndex,
                     onCellClick = viewModel::onCellClick,
+                    cellSize = portraitCellSize,
+                    spacing = portraitSpacing,
                     modifier = Modifier.weight(1f)
                 )
                 WordleKeyboard(
@@ -312,9 +412,38 @@ fun GameScreen(viewModel: GameViewModel) {
                     onLetterInput = viewModel::onLetterInput,
                     onDelete = viewModel::onDelete,
                     onSubmit = viewModel::onSubmit,
+                    keyWidth = if (language == "da" || language == "de" || language == "es") 28.dp else 34.dp,
+                    keyHeight = portraitKeyHeight,
+                    spacing = if (language == "da" || language == "de" || language == "es") 4.dp else 6.dp,
                     rows = keyboardRows
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun SettingsItem(
+    headline: String,
+    subtext: String,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(vertical = 4.dp)
+    ) {
+        Text(
+            text = headline,
+            style = MaterialTheme.typography.titleLarge
+        )
+        if (subtext.isNotEmpty()) {
+            Text(
+                text = subtext,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

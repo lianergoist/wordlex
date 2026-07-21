@@ -29,9 +29,13 @@ data class GameUiState(
     val showPossibleWordsDialog: Boolean = false,
     val showAboutDialog: Boolean = false,
     val showSettingsDialog: Boolean = false,
+    val showLanguageSelectionDialog: Boolean = false,
+    val showImportSettingsDialog: Boolean = false,
     val showImportOptionsDialog: Boolean = false,
     val showConfirmWordListDialog: Boolean = false,
     val pendingImportWords: List<String> = emptyList(),
+    val importSettingsLanguage: String = "en",
+    val importSettingsReplace: Boolean = false,
     val matchingWords: List<String> = emptyList(),
     val hintedIndices: Set<Int> = emptySet()
 )
@@ -211,7 +215,10 @@ class GameViewModel(
         viewModelScope.launch {
             // 1. If the user has not yet entered a word, suggest a word to try
             if (state.guesses.isEmpty()) {
-                val randomWord = wordRepository.getRandomWord(currentLanguage)?.word?.uppercase() ?: "APPLE"
+                val allWords = wordRepository.getAllWords(currentLanguage).first()
+                val randomWord = allWords
+                    .filter { it.word.lowercase().toSet().size == 5 }
+                    .randomOrNull()?.word?.uppercase() ?: "ADIEU"
                 _uiState.update { it.copy(message = UiMessage(R.string.msg_try_word, listOf(randomWord))) }
                 return@launch
             }
@@ -306,13 +313,35 @@ class GameViewModel(
         _uiState.update { it.copy(showSettingsDialog = false) }
     }
 
+    fun showLanguageSelectionDialog() {
+        _uiState.update { it.copy(showLanguageSelectionDialog = true) }
+    }
+
+    fun dismissLanguageSelectionDialog() {
+        _uiState.update { it.copy(showLanguageSelectionDialog = false) }
+    }
+
     fun onLanguageSelected(lang: String) {
         viewModelScope.launch {
             settingsRepository.setLanguage(lang)
-            _uiState.update { it.copy(showSettingsDialog = false) }
-            // Note: The UI will need to react to this change. 
-            // In a real app, you might use AppCompatDelegate.setApplicationLocales
+            _uiState.update { it.copy(showLanguageSelectionDialog = false) }
         }
+    }
+
+    fun showImportSettingsDialog() {
+        _uiState.update { it.copy(showImportSettingsDialog = true, importSettingsLanguage = currentLanguage) }
+    }
+
+    fun dismissImportSettingsDialog() {
+        _uiState.update { it.copy(showImportSettingsDialog = false) }
+    }
+
+    fun onImportLanguageChanged(lang: String) {
+        _uiState.update { it.copy(importSettingsLanguage = lang) }
+    }
+
+    fun onImportReplaceChanged(replace: Boolean) {
+        _uiState.update { it.copy(importSettingsReplace = replace) }
     }
 
     fun onWordsImported(words: List<String>) {
@@ -320,26 +349,29 @@ class GameViewModel(
             _uiState.update { it.copy(message = UiMessage(R.string.msg_import_empty)) }
             return
         }
-        _uiState.update { it.copy(pendingImportWords = words, showImportOptionsDialog = true) }
-    }
-
-    fun confirmImport(replace: Boolean) {
-        val words = _uiState.value.pendingImportWords
+        
+        val importLang = _uiState.value.importSettingsLanguage
+        val replace = _uiState.value.importSettingsReplace
         viewModelScope.launch {
             if (replace) {
-                wordRepository.deleteWordsByLanguage(currentLanguage)
+                wordRepository.deleteWordsByLanguage(importLang)
             }
-            val wordEntities = words.distinct().sorted().map { Word(it.lowercase(), currentLanguage) }
+            val wordEntities = words.distinct().sorted().map { Word(it.lowercase(), importLang) }
             wordRepository.insertAll(wordEntities)
             _uiState.update { 
                 it.copy(
-                    showImportOptionsDialog = false,
-                    pendingImportWords = emptyList(),
+                    showImportSettingsDialog = false,
                     message = UiMessage(R.string.msg_import_success, listOf(words.size))
                 )
             }
-            updatePossibleWordsCount()
+            if (importLang == currentLanguage) {
+                updatePossibleWordsCount()
+            }
         }
+    }
+
+    fun confirmImport(replace: Boolean) {
+        // This is no longer used in the new flow but kept for now or removed
     }
 
     fun dismissImportOptionsDialog() {
