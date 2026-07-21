@@ -31,4 +31,8 @@
     <string name="btn_replace">Reemplazar</string>
     <string name="msg_import_success">%1$d palabras importadas con éxito</string>
     <string name="msg_import_empty">No se han encontrado palabras válidas de 5 letras en el archivo</string>
+    <string name="confirm_word_list_title">¿Mostrar palabras posibles?</string>
+    <string name="confirm_word_list_text">¿Estás seguro de que quieres ver la lista de todas las palabras posibles? Esto podría hacer el juego demasiado fácil.</string>
+    <string name="btn_yes">Sí</string>
+    <string name="btn_no">No</string>
 </resources>

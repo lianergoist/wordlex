@@ -188,15 +188,16 @@ fun GameScreen(viewModel: GameViewModel) {
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable { viewModel.onLanguageSelected(code) }
-                                    .padding(vertical = 12.dp),
+                                    .padding(vertical = 2.dp), // Even tighter
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 RadioButton(
                                     selected = language == code,
-                                    onClick = { viewModel.onLanguageSelected(code) }
+                                    onClick = { viewModel.onLanguageSelected(code) },
+                                    modifier = Modifier.size(32.dp) // Smaller radio button area
                                 )
-                                Spacer(Modifier.width(8.dp))
-                                Text(label)
+                                Spacer(Modifier.width(4.dp))
+                                Text(label, style = MaterialTheme.typography.bodyMedium)
                             }
                         }
                         
@@ -236,6 +237,24 @@ fun GameScreen(viewModel: GameViewModel) {
                 dismissButton = {
                     TextButton(onClick = viewModel::dismissImportOptionsDialog) {
                         Text(stringResource(R.string.btn_close))
+                    }
+                }
+            )
+        }
+
+        if (uiState.showConfirmWordListDialog) {
+            AlertDialog(
+                onDismissRequest = viewModel::dismissConfirmWordListDialog,
+                title = { Text(stringResource(R.string.confirm_word_list_title)) },
+                text = { Text(stringResource(R.string.confirm_word_list_text)) },
+                confirmButton = {
+                    Button(onClick = viewModel::showMatchingWords) {
+                        Text(stringResource(R.string.btn_yes))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = viewModel::dismissConfirmWordListDialog) {
+                        Text(stringResource(R.string.btn_no))
                     }
                 }
             )

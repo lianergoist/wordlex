@@ -23,6 +23,7 @@ class DataInitializer(private val context: Context, private val repository: Word
                     .map { it.trim().lowercase() }
                     .filter { it.length == 5 }
                     .distinct()
+                    .sorted()
                     .map { Word(it, language) }
                 
                 repository.insertAll(words)

@@ -31,4 +31,8 @@
     <string name="btn_replace">Replace</string>
     <string name="msg_import_success">Imported %1$d words successfully</string>
     <string name="msg_import_empty">No valid 5-letter words found in file</string>
+    <string name="confirm_word_list_title">Show possible words?</string>
+    <string name="confirm_word_list_text">Are you sure you want to see the list of all possible words? This might make the game too easy.</string>
+    <string name="btn_yes">Yes</string>
+    <string name="btn_no">No</string>
 </resources>

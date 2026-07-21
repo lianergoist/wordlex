@@ -31,4 +31,8 @@
     <string name="btn_replace">Ersetzen</string>
     <string name="msg_import_success">%1$d Wörter erfolgreich importiert</string>
     <string name="msg_import_empty">Keine gültigen 5-Buchstaben-Wörter in der Datei gefunden</string>
+    <string name="confirm_word_list_title">Mögliche Wörter anzeigen?</string>
+    <string name="confirm_word_list_text">Sind Sie sicher, dass Sie die Liste aller möglichen Wörter sehen möchten? Dies könnte das Spiel zu einfach machen.</string>
+    <string name="btn_yes">Ja</string>
+    <string name="btn_no">Nein</string>
 </resources>

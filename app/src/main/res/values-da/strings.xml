@@ -31,4 +31,8 @@
     <string name="btn_replace">Erstat</string>
     <string name="msg_import_success">Importerede %1$d ord med succes</string>
     <string name="msg_import_empty">Ingen gyldige 5-bogstavs ord fundet i filen</string>
+    <string name="confirm_word_list_title">Vis mulige ord?</string>
+    <string name="confirm_word_list_text">Er du sikker på, at du vil se listen over alle mulige ord? Det kan gøre spillet for nemt.</string>
+    <string name="btn_yes">Ja</string>
+    <string name="btn_no">Nej</string>
 </resources>

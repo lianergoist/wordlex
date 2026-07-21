@@ -30,8 +30,10 @@ data class GameUiState(
     val showAboutDialog: Boolean = false,
     val showSettingsDialog: Boolean = false,
     val showImportOptionsDialog: Boolean = false,
+    val showConfirmWordListDialog: Boolean = false,
     val pendingImportWords: List<String> = emptyList(),
-    val matchingWords: List<String> = emptyList()
+    val matchingWords: List<String> = emptyList(),
+    val hintedIndices: Set<Int> = emptySet()
 )
 
 class GameViewModel(
@@ -158,6 +160,7 @@ class GameViewModel(
                     guesses = newGuesses,
                     currentGuess = "     ",
                     focusedIndex = 0,
+                    hintedIndices = emptySet(),
                     isWon = isWon,
                     isGameOver = isGameOver,
                     message = when {
@@ -223,8 +226,8 @@ class GameViewModel(
                 }
             }
 
-            // 2 & 3. Find letters that are in the word but incorrectly placed (yellow letters)
-            // We look for letters marked PRESENT anywhere on the board.
+            // 2 & 3. Find positions of letters that are in the word but incorrectly placed (yellow letters)
+            val target = state.targetWord.uppercase()
             val yellowLetters = mutableSetOf<Char>()
             state.guesses.forEach { guess ->
                 guess.forEach { evaluated ->
@@ -234,36 +237,53 @@ class GameViewModel(
                 }
             }
 
-            val target = state.targetWord.uppercase()
-            
-            // Check if any of these "yellow" letters have positions in the target that are not yet solved (green)
-            for (letter in yellowLetters.sorted()) { // Sort for deterministic reveal order
-                val unsolvedIndices = target.mapIndexedNotNull { index, c ->
-                    if (c == letter && knownCorrect[index] == ' ') index else null
-                }
-                
-                if (unsolvedIndices.isNotEmpty()) {
-                    // Reveal where to place one of the incorrect placed letters
-                    val revealIndex = unsolvedIndices.first()
-                    _uiState.update { it.copy(message = UiMessage(R.string.msg_letter_hint, listOf(letter, revealIndex + 1))) }
-                    return@launch
+            val availableHints = mutableListOf<Pair<Char, Int>>()
+            for (letter in yellowLetters) {
+                target.forEachIndexed { index, c ->
+                    if (c == letter && knownCorrect[index] == ' ' && !state.hintedIndices.contains(index)) {
+                        availableHints.add(c to index)
+                    }
                 }
             }
 
-            // 4. If there are no more incorrect placed letters (all yellow/green info is accounted for),
-            // then show a list of available words that match ALL information on the board (correct, present, and absent).
+            if (availableHints.isNotEmpty()) {
+                // Reveal the first available hint
+                val (char, index) = availableHints.sortedBy { it.second }.first()
+                _uiState.update { 
+                    it.copy(
+                        message = UiMessage(R.string.msg_letter_hint, listOf(char, index + 1)),
+                        hintedIndices = it.hintedIndices + index
+                    )
+                }
+                return@launch
+            }
+
+            // 4. If there are no more incorrect placed letters to hint about,
+            // ask for confirmation before showing the word list.
+            _uiState.update { it.copy(showConfirmWordListDialog = true) }
+        }
+    }
+
+    fun showMatchingWords() {
+        val state = _uiState.value
+        viewModelScope.launch {
             val allWords = wordRepository.getAllWords(currentLanguage).first()
             val matching = allWords.filter { word ->
                 engine.isPossibleWord(word.word, state.guesses)
-            }.map { it.word.uppercase() }
+            }.map { it.word.uppercase() }.sorted()
 
             _uiState.update { 
                 it.copy(
                     matchingWords = matching,
-                    showPossibleWordsDialog = true
+                    showPossibleWordsDialog = true,
+                    showConfirmWordListDialog = false
                 )
             }
         }
+    }
+
+    fun dismissConfirmWordListDialog() {
+        _uiState.update { it.copy(showConfirmWordListDialog = false) }
     }
 
     fun dismissPossibleWordsDialog() {
@@ -309,7 +329,7 @@ class GameViewModel(
             if (replace) {
                 wordRepository.deleteWordsByLanguage(currentLanguage)
             }
-            val wordEntities = words.map { Word(it.lowercase(), currentLanguage) }
+            val wordEntities = words.distinct().sorted().map { Word(it.lowercase(), currentLanguage) }
             wordRepository.insertAll(wordEntities)
             _uiState.update { 
                 it.copy(
