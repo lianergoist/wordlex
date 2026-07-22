@@ -16,7 +16,7 @@
     <string name="menu_settings">Paramètres</string>
     <string name="menu_about">À propos</string>
     <string name="about_title">À propos de WordleX</string>
-    <string name="about_text">WordleX est une version moderne du jeu de mots classique. Avec un dictionnaire local, un système d\'indices intelligent et une prise en charge de plusieurs langues.\n\nAmusez-vous bien !</string>
+    <string name="about_text">WordleX est une version moderne du jeu de mots classique. Avec un dictionnaire local, un système d\'indices intelligent et une prise en charge de plusieurs langues.\n\nAmusez-vous bien !\n\nSous licence MIT.</string>
     <string name="settings_title">Paramètres</string>
     <string name="settings_language">Langue</string>
     <string name="lang_en">Anglais</string>
