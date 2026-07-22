@@ -17,7 +17,7 @@ interface WordDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(words: List<Word>)
 
-    @Query("SELECT * FROM words WHERE language = :language ORDER BY RANDOM() LIMIT 1")
+    @Query("SELECT * FROM words WHERE language = :language AND isRare = 0 ORDER BY RANDOM() LIMIT 1")
     suspend fun getRandomWord(language: String): Word?
 
     @Query("SELECT EXISTS(SELECT 1 FROM words WHERE word = :word AND language = :language LIMIT 1)")

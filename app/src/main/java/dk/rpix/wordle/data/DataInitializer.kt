@@ -16,18 +16,33 @@ class DataInitializer(private val context: Context, private val repository: Word
                 config.setLocale(locale)
                 val localizedContext = context.createConfigurationContext(config)
                 
-                val words = localizedContext.resources.openRawResource(R.raw.words)
-                    .bufferedReader()
-                    .readLines()
-                    .filter { it.isNotBlank() }
-                    .map { it.trim().lowercase() }
-                    .filter { it.length == 5 }
-                    .distinct()
-                    .sorted()
-                    .map { Word(it, language) }
+                val words = loadWords(localizedContext, R.raw.words, language, false)
+                val rareWords = loadWords(localizedContext, R.raw.rare, language, true)
                 
-                repository.insertAll(words)
+                // Combine lists, preferring common status if a word exists in both
+                val combinedWords = (words + rareWords)
+                    .groupBy { it.word }
+                    .map { (_, versions) -> 
+                        versions.find { !it.isRare } ?: versions.first()
+                    }
+                
+                repository.insertAll(combinedWords)
             }
+        }
+    }
+
+    private fun loadWords(context: Context, resourceId: Int, language: String, isRare: Boolean): List<Word> {
+        return try {
+            context.resources.openRawResource(resourceId)
+                .bufferedReader()
+                .readLines()
+                .filter { it.isNotBlank() }
+                .map { it.trim().lowercase() }
+                .filter { it.length == 5 }
+                .distinct()
+                .map { Word(it, language, isRare) }
+        } catch (e: Exception) {
+            emptyList()
         }
     }
 }
