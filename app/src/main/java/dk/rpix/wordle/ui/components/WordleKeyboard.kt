@@ -52,7 +52,6 @@ fun WordleKeyboard(
     ) {
         rows.forEachIndexed { rowIndex, row ->
             Row(
-                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(spacing, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically
             ) {
