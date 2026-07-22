@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dk.rpix.wordle.R
 import dk.rpix.wordle.data.GameState
 import dk.rpix.wordle.data.GameStateRepository
+import dk.rpix.wordle.data.Statistics
 import dk.rpix.wordle.data.Word
 import dk.rpix.wordle.data.WordRepository
 import dk.rpix.wordle.ui.UiMessage
@@ -14,6 +15,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+
+enum class HintType {
+    WORD_SUGGESTION, LETTER_REVEAL, WORD_LIST
+}
 
 data class GameUiState(
     val targetWord: String = "",
@@ -32,19 +37,27 @@ data class GameUiState(
     val showLanguageSelectionDialog: Boolean = false,
     val showImportSettingsDialog: Boolean = false,
     val showImportOptionsDialog: Boolean = false,
-    val showConfirmWordListDialog: Boolean = false,
     val pendingImportWords: List<String> = emptyList(),
     val importSettingsLanguage: String = "en",
     val importSettingsReplace: Boolean = false,
     val matchingWords: List<String> = emptyList(),
     val hintedIndices: Set<Int> = emptySet(),
-    val showNewGameConfirmDialog: Boolean = false
+    val showNewGameConfirmDialog: Boolean = false,
+    val points: Int = 0,
+    val discoveredGreen: Set<Int> = emptySet(),
+    val discoveredYellow: Set<Char> = emptySet(),
+    val showPointsDialog: Boolean = false,
+    val statistics: Statistics? = null,
+    val showHintConfirmDialog: Boolean = false,
+    val pendingHintPrice: Int = 0,
+    val pendingHintType: HintType = HintType.LETTER_REVEAL
 )
 
 class GameViewModel(
     private val wordRepository: WordRepository,
     private val gameStateRepository: GameStateRepository,
-    private val settingsRepository: dk.rpix.wordle.data.SettingsRepository
+    private val settingsRepository: dk.rpix.wordle.data.SettingsRepository,
+    private val statisticsRepository: dk.rpix.wordle.data.StatisticsRepository
 ) : ViewModel() {
 
     private val engine = WordleGameEngine()
@@ -62,6 +75,11 @@ class GameViewModel(
                 }
             }
         }
+        viewModelScope.launch {
+            statisticsRepository.statisticsFlow.collect { stats ->
+                _uiState.update { it.copy(statistics = stats) }
+            }
+        }
         loadOrStartGame()
     }
 
@@ -75,7 +93,11 @@ class GameViewModel(
                         targetWord = savedState.targetWord,
                         guesses = evaluatedGuesses,
                         isGameOver = savedState.isGameOver,
-                        isWon = savedState.isWon
+                        isWon = savedState.isWon,
+                        points = savedState.points,
+                        discoveredGreen = savedState.discoveredGreen.toSet(),
+                        discoveredYellow = savedState.discoveredYellow.map { charStr -> charStr[0] }.toSet(),
+                        hintedIndices = savedState.hintedIndices.toSet()
                     )
                 }
                 updateKeyboardState()
@@ -122,8 +144,7 @@ class GameViewModel(
         _uiState.update { 
             it.copy(
                 currentGuess = newGuess, 
-                focusedIndex = nextFocus,
-                message = null
+                focusedIndex = nextFocus
             ) 
         }
     }
@@ -137,7 +158,7 @@ class GameViewModel(
         if (newGuessArr[state.focusedIndex] != ' ') {
             // If current cell has a letter, clear it
             newGuessArr[state.focusedIndex] = ' '
-            _uiState.update { it.copy(currentGuess = String(newGuessArr), message = null) }
+            _uiState.update { it.copy(currentGuess = String(newGuessArr)) }
         } else if (state.focusedIndex > 0) {
             // If current cell is empty, move back and clear that one
             val nextFocus = state.focusedIndex - 1
@@ -145,8 +166,7 @@ class GameViewModel(
             _uiState.update { 
                 it.copy(
                     currentGuess = String(newGuessArr), 
-                    focusedIndex = nextFocus,
-                    message = null
+                    focusedIndex = nextFocus
                 ) 
             }
         }
@@ -174,20 +194,62 @@ class GameViewModel(
             val isWon = guess == state.targetWord
             val isGameOver = isWon || newGuesses.size >= 6
 
+            // Calculate point bonuses
+            var discoveryBonus = 0
+            val newDiscoveredGreen = state.discoveredGreen.toMutableSet()
+            val newDiscoveredYellow = state.discoveredYellow.toMutableSet()
+
+            evaluated.forEachIndexed { index, letter ->
+                if (letter.status == LetterStatus.CORRECT) {
+                    if (!newDiscoveredGreen.contains(index) && !state.hintedIndices.contains(index)) {
+                        discoveryBonus += 50
+                        newDiscoveredGreen.add(index)
+                    }
+                } else if (letter.status == LetterStatus.PRESENT) {
+                    val char = letter.char.uppercaseChar()
+                    if (!newDiscoveredYellow.contains(char)) {
+                        discoveryBonus += 20
+                        newDiscoveredYellow.add(char)
+                    }
+                }
+            }
+
+            var winBonus = 0
+            if (isWon) {
+                winBonus = when (newGuesses.size) {
+                    1 -> 1000
+                    2 -> 800
+                    3 -> 600
+                    4 -> 400
+                    5 -> 200
+                    6 -> 100
+                    else -> 0
+                }
+            }
+
+            val totalPoints = state.points + discoveryBonus + winBonus
+
             _uiState.update {
                 it.copy(
                     guesses = newGuesses,
                     currentGuess = "     ",
                     focusedIndex = 0,
-                    hintedIndices = emptySet(),
+                    hintedIndices = state.hintedIndices,
                     isWon = isWon,
                     isGameOver = isGameOver,
+                    points = totalPoints,
+                    discoveredGreen = newDiscoveredGreen,
+                    discoveredYellow = newDiscoveredYellow,
                     message = when {
-                        isWon -> UiMessage(R.string.msg_win)
-                        isGameOver -> UiMessage(R.string.msg_game_over, listOf(state.targetWord.uppercase()))
+                        isWon -> UiMessage(R.string.msg_win, suffixId = R.string.msg_points_earned, suffixArgs = listOf(totalPoints))
+                        isGameOver -> UiMessage(R.string.msg_game_over, listOf(state.targetWord.uppercase()), suffixId = R.string.msg_points_earned, suffixArgs = listOf(totalPoints))
                         else -> null
                     }
                 )
+            }
+
+            if (isGameOver) {
+                statisticsRepository.addGameResult(totalPoints)
             }
 
             updateKeyboardState()
@@ -227,63 +289,130 @@ class GameViewModel(
         val state = _uiState.value
         if (state.isGameOver) return
 
-        viewModelScope.launch {
-            // 1. If the user has not yet entered a word, suggest a word to try
-            if (state.guesses.isEmpty()) {
-                val allWords = wordRepository.getAllWords(currentLanguage).first()
-                val randomWord = allWords
-                    .filter { it.word.lowercase().toSet().size == 5 }
-                    .randomOrNull()?.word?.uppercase() ?: "ADIEU"
-                _uiState.update { it.copy(message = UiMessage(R.string.msg_try_word, listOf(randomWord))) }
-                return@launch
+        // 1. Determine Hint Type and Price
+        val (type, price) = when {
+            state.guesses.isEmpty() -> {
+                // Initial word suggestion
+                HintType.WORD_SUGGESTION to 350 // Same as a full unknown letter reveal
             }
-
-            // Identify known correct positions (green letters)
-            val knownCorrect = MutableList(5) { ' ' }
-            state.guesses.forEach { guess ->
-                guess.forEachIndexed { index, evaluated ->
-                    if (evaluated.status == LetterStatus.CORRECT) {
-                        knownCorrect[index] = evaluated.char.uppercaseChar()
+            else -> {
+                // Identify known correct positions (green letters)
+                val knownCorrect = MutableList(5) { ' ' }
+                state.guesses.forEach { guess ->
+                    guess.forEachIndexed { index, evaluated ->
+                        if (evaluated.status == LetterStatus.CORRECT) {
+                            knownCorrect[index] = evaluated.char.uppercaseChar()
+                        }
                     }
                 }
-            }
+                val unknownCount = knownCorrect.count { it == ' ' }
 
-            // 2 & 3. Find positions of letters that are in the word but incorrectly placed (yellow letters)
-            val target = state.targetWord.uppercase()
-            val yellowLetters = mutableSetOf<Char>()
-            state.guesses.forEach { guess ->
-                guess.forEach { evaluated ->
+                // Check if any yellow letters can be hinted as green
+                val target = state.targetWord.uppercase()
+                val yellowLetters = mutableSetOf<Char>()
+                state.guesses.lastOrNull()?.forEach { evaluated ->
                     if (evaluated.status == LetterStatus.PRESENT) {
                         yellowLetters.add(evaluated.char.uppercaseChar())
                     }
                 }
-            }
 
-            val availableHints = mutableListOf<Pair<Char, Int>>()
-            for (letter in yellowLetters) {
-                target.forEachIndexed { index, c ->
-                    if (c == letter && knownCorrect[index] == ' ' && !state.hintedIndices.contains(index)) {
-                        availableHints.add(c to index)
+                val availableHints = mutableListOf<Pair<Char, Int>>()
+                for (letter in yellowLetters) {
+                    target.forEachIndexed { index, c ->
+                        if (c == letter && knownCorrect[index] == ' ' && !state.hintedIndices.contains(index)) {
+                            availableHints.add(c to index)
+                        }
                     }
                 }
-            }
 
-            if (availableHints.isNotEmpty()) {
-                // Reveal the first available hint
-                val (char, index) = availableHints.sortedBy { it.second }.first()
-                _uiState.update { 
-                    it.copy(
-                        message = UiMessage(R.string.msg_letter_hint, listOf(char, index + 1)),
-                        hintedIndices = it.hintedIndices + index
-                    )
+                if (availableHints.isNotEmpty()) {
+                    HintType.LETTER_REVEAL to (100 + (unknownCount * 50))
+                } else {
+                    HintType.WORD_LIST to (200 * unknownCount)
                 }
-                return@launch
             }
-
-            // 4. If there are no more incorrect placed letters to hint about,
-            // ask for confirmation before showing the word list.
-            _uiState.update { it.copy(showConfirmWordListDialog = true) }
         }
+
+        _uiState.update { 
+            it.copy(
+                showHintConfirmDialog = true,
+                pendingHintPrice = price,
+                pendingHintType = type
+            )
+        }
+    }
+
+    fun confirmHint() {
+        val state = _uiState.value
+        val price = state.pendingHintPrice
+        val type = state.pendingHintType
+        
+        viewModelScope.launch {
+            _uiState.update { it.copy(showHintConfirmDialog = false, points = it.points - price) }
+            
+            when (type) {
+                HintType.WORD_SUGGESTION -> {
+                    val allWords = wordRepository.getAllWords(currentLanguage).first()
+                    val randomWord = allWords
+                        .filter { it.word.lowercase().toSet().size == 5 }
+                        .randomOrNull()?.word?.uppercase() ?: "ADIEU"
+                    _uiState.update { it.copy(message = UiMessage(R.string.msg_try_word, listOf(randomWord))) }
+                }
+                HintType.LETTER_REVEAL -> {
+                    val knownCorrect = MutableList(5) { ' ' }
+                    state.guesses.forEach { guess ->
+                        guess.forEachIndexed { index, evaluated ->
+                            if (evaluated.status == LetterStatus.CORRECT) {
+                                knownCorrect[index] = evaluated.char.uppercaseChar()
+                            }
+                        }
+                    }
+
+                    val target = state.targetWord.uppercase()
+                    val yellowLetters = mutableSetOf<Char>()
+                    state.guesses.lastOrNull()?.forEach { evaluated ->
+                        if (evaluated.status == LetterStatus.PRESENT) {
+                            yellowLetters.add(evaluated.char.uppercaseChar())
+                        }
+                    }
+
+                    val availableHints = mutableListOf<Pair<Char, Int>>()
+                    for (letter in yellowLetters) {
+                        target.forEachIndexed { index, c ->
+                            if (c == letter && knownCorrect[index] == ' ' && !state.hintedIndices.contains(index)) {
+                                availableHints.add(c to index)
+                            }
+                        }
+                    }
+
+                    if (availableHints.isNotEmpty()) {
+                        val (char, index) = availableHints.sortedBy { it.second }.first()
+                        _uiState.update { 
+                            it.copy(
+                                message = UiMessage(R.string.msg_letter_hint, listOf(char, index + 1)),
+                                hintedIndices = it.hintedIndices + index
+                            )
+                        }
+                    }
+                }
+                HintType.WORD_LIST -> {
+                    showMatchingWords()
+                }
+            }
+            saveGameState()
+        }
+    }
+
+    fun dismissHintConfirmDialog() {
+        _uiState.update { it.copy(showHintConfirmDialog = false) }
+    }
+
+    fun showPointsDialog() {
+        _uiState.update { it.copy(showPointsDialog = true) }
+    }
+
+    fun dismissPointsDialog() {
+        _uiState.update { it.copy(showPointsDialog = false) }
     }
 
     fun showMatchingWords() {
@@ -297,15 +426,14 @@ class GameViewModel(
             _uiState.update { 
                 it.copy(
                     matchingWords = matching,
-                    showPossibleWordsDialog = true,
-                    showConfirmWordListDialog = false
+                    showPossibleWordsDialog = true
                 )
             }
         }
     }
 
     fun dismissConfirmWordListDialog() {
-        _uiState.update { it.copy(showConfirmWordListDialog = false) }
+        // No longer used
     }
 
     fun dismissPossibleWordsDialog() {
@@ -402,7 +530,11 @@ class GameViewModel(
                     guesses = state.guesses.map { evaluatedList -> evaluatedList.map { it.char }.joinToString("") },
                     isGameOver = state.isGameOver,
                     isWon = state.isWon,
-                    language = currentLanguage
+                    language = currentLanguage,
+                    points = state.points,
+                    discoveredGreen = state.discoveredGreen.toList(),
+                    discoveredYellow = state.discoveredYellow.map { it.toString() },
+                    hintedIndices = state.hintedIndices.toList()
                 )
             )
         }

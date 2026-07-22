@@ -10,5 +10,9 @@ data class GameState(
     val guesses: List<String>,
     val isGameOver: Boolean,
     val isWon: Boolean,
-    val language: String
+    val language: String,
+    val points: Int = 0,
+    val discoveredGreen: List<Int> = emptyList(),
+    val discoveredYellow: List<String> = emptyList(),
+    val hintedIndices: List<Int> = emptyList()
 )

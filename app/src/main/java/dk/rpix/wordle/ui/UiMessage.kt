@@ -6,10 +6,14 @@ import androidx.compose.ui.res.stringResource
 
 data class UiMessage(
     @StringRes val resId: Int,
-    val args: List<Any> = emptyList()
+    val args: List<Any> = emptyList(),
+    @StringRes val suffixId: Int? = null,
+    val suffixArgs: List<Any> = emptyList()
 )
 
 @Composable
 fun UiMessage.asString(): String {
-    return stringResource(resId, *args.toTypedArray())
+    val base = stringResource(resId, *args.toTypedArray())
+    val suffix = suffixId?.let { "\n" + stringResource(it, *suffixArgs.toTypedArray()) } ?: ""
+    return base + suffix
 }

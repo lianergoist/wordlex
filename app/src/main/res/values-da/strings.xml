@@ -31,10 +31,17 @@
     <string name="btn_replace">Erstat</string>
     <string name="msg_import_success">Importerede %1$d ord med succes</string>
     <string name="msg_import_empty">Ingen gyldige 5-bogstavs ord fundet i filen</string>
-    <string name="confirm_word_list_title">Vis mulige ord?</string>
-    <string name="confirm_word_list_text">Er du sikker på, at du vil se listen over alle mulige ord? Det kan gøre spillet for nemt.</string>
     <string name="btn_yes">Ja</string>
     <string name="btn_no">Nej</string>
     <string name="confirm_new_game_title">Nyt spil?</string>
     <string name="confirm_new_game_text">Er du sikker på, at du vil starte et nyt spil? Dine nuværende fremskridt vil gå tabt.</string>
+    <string name="menu_points">Point</string>
+    <string name="stats_title">Statistik</string>
+    <string name="stats_games_played">Spil spillet</string>
+    <string name="stats_total_points">Point i alt</string>
+    <string name="stats_average_points">Gennemsnit</string>
+    <string name="msg_points_earned">Point i alt: %1$d</string>
+    <string name="hint_confirm_title">Køb hint?</string>
+    <string name="hint_confirm_text">Pris for hint: %1$d point.\n\nVil du fortsætte?</string>
+    <string name="btn_buy_hint">Køb hint</string>
 </resources>

@@ -31,10 +31,17 @@
     <string name="btn_replace">Reemplazar</string>
     <string name="msg_import_success">%1$d palabras importadas con éxito</string>
     <string name="msg_import_empty">No se han encontrado palabras válidas de 5 letras en el archivo</string>
-    <string name="confirm_word_list_title">¿Mostrar palabras posibles?</string>
-    <string name="confirm_word_list_text">¿Estás seguro de que quieres ver la lista de todas las palabras posibles? Esto podría hacer el juego demasiado fácil.</string>
     <string name="btn_yes">Sí</string>
     <string name="btn_no">No</string>
     <string name="confirm_new_game_title">¿Nuevo juego?</string>
     <string name="confirm_new_game_text">¿Estás seguro de que quieres empezar un nuevo juego? Tu progreso actual se perderá.</string>
+    <string name="menu_points">Puntos</string>
+    <string name="stats_title">Estadísticas</string>
+    <string name="stats_games_played">Juegos jugados</string>
+    <string name="stats_total_points">Puntos totales</string>
+    <string name="stats_average_points">Promedio</string>
+    <string name="msg_points_earned">Puntos totales: %1$d</string>
+    <string name="hint_confirm_title">¿Comprar pista?</string>
+    <string name="hint_confirm_text">Precio de la pista: %1$d puntos.\n\n¿Desea continuar?</string>
+    <string name="btn_buy_hint">Comprar pista</string>
 </resources>

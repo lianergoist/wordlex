@@ -31,10 +31,17 @@
     <string name="btn_replace">Ersetzen</string>
     <string name="msg_import_success">%1$d Wörter erfolgreich importiert</string>
     <string name="msg_import_empty">Keine gültigen 5-Buchstaben-Wörter in der Datei gefunden</string>
-    <string name="confirm_word_list_title">Mögliche Wörter anzeigen?</string>
-    <string name="confirm_word_list_text">Sind Sie sicher, dass Sie die Liste aller möglichen Wörter sehen möchten? Dies könnte das Spiel zu einfach machen.</string>
     <string name="btn_yes">Ja</string>
     <string name="btn_no">Nein</string>
     <string name="confirm_new_game_title">Neues Spiel?</string>
     <string name="confirm_new_game_text">Sind Sie sicher, dass Sie ein neues Spiel starten möchten? Ihr aktueller Fortschritt geht verloren.</string>
+    <string name="menu_points">Punkte</string>
+    <string name="stats_title">Statistik</string>
+    <string name="stats_games_played">Gespielte Spiele</string>
+    <string name="stats_total_points">Gesamtpunktzahl</string>
+    <string name="stats_average_points">Durchschnitt</string>
+    <string name="msg_points_earned">Gesamtpunktzahl: %1$d</string>
+    <string name="hint_confirm_title">Hinweis kaufen?</string>
+    <string name="hint_confirm_text">Hinweis-Preis: %1$d Punkte.\n\nMöchten Sie fortfahren?</string>
+    <string name="btn_buy_hint">Hinweis kaufen</string>
 </resources>

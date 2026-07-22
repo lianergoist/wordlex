@@ -70,7 +70,8 @@ class MainActivity : ComponentActivity() {
                                             factory = GameViewModelFactory(
                                                 app.wordRepository, 
                                                 app.gameStateRepository,
-                                                app.settingsRepository
+                                                app.settingsRepository,
+                                                app.statisticsRepository
                                             )
                                         )
                                         GameScreen(viewModel = gameViewModel)

@@ -31,10 +31,17 @@
     <string name="btn_replace">Replace</string>
     <string name="msg_import_success">Imported %1$d words successfully</string>
     <string name="msg_import_empty">No valid 5-letter words found in file</string>
-    <string name="confirm_word_list_title">Show possible words?</string>
-    <string name="confirm_word_list_text">Are you sure you want to see the list of all possible words? This might make the game too easy.</string>
     <string name="btn_yes">Yes</string>
     <string name="btn_no">No</string>
     <string name="confirm_new_game_title">New Game?</string>
     <string name="confirm_new_game_text">Are you sure you want to start a new game? Your current progress will be lost.</string>
+    <string name="menu_points">Points</string>
+    <string name="stats_title">Statistics</string>
+    <string name="stats_games_played">Games Played</string>
+    <string name="stats_total_points">Total Points</string>
+    <string name="stats_average_points">Average</string>
+    <string name="msg_points_earned">Total Points: %1$d</string>
+    <string name="hint_confirm_title">Buy Hint?</string>
+    <string name="hint_confirm_text">Hint Price: %1$d points.\n\nDo you want to continue?</string>
+    <string name="btn_buy_hint">Buy Hint</string>
 </resources>

@@ -190,6 +190,7 @@ beære
 biavl
 bibel
 biden
+bider
 bidet
 bidsk
 bifag
@@ -925,6 +926,7 @@ genus
 gerne
 gevir
 gevær
+gider
 gifte
 gilde
 gipse
@@ -947,7 +949,6 @@ glose
 glæde
 gløde
 gløgg
-gmoen
 gnave
 gnejs
 gnide

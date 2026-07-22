@@ -135,7 +135,7 @@ fun KeyItem(
         if (text != null) {
             Text(
                 text = text,
-                fontSize = if (text.length > 1) (keyWidth.value * 0.3).sp else (keyWidth.value * 0.5).sp,
+                fontSize = if (text.length > 1) (keyWidth.value * 0.4).sp else (keyWidth.value * 0.5).sp,
                 fontWeight = FontWeight.Bold,
                 color = contentColor
             )

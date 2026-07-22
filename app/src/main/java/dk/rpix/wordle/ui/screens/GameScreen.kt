@@ -6,12 +6,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Lightbulb
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material3.*
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,10 +19,10 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.window.core.layout.WindowWidthSizeClass
 import dk.rpix.wordle.R
 import dk.rpix.wordle.game.GameViewModel
 import dk.rpix.wordle.ui.asString
@@ -33,8 +33,6 @@ import dk.rpix.wordle.ui.components.WordleKeyboard
 @Composable
 fun GameScreen(viewModel: GameViewModel) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val snackbarHostState = remember { SnackbarHostState() }
-    val adaptiveInfo = currentWindowAdaptiveInfo()
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
     
@@ -61,10 +59,28 @@ fun GameScreen(viewModel: GameViewModel) {
     
     // Dynamic sizing for Landscape/Wide (Side-by-side)
     val isTabletWide = configuration.screenWidthDp >= 840 // Material Expanded breakpoint
-    val landscapeCellSize = if (isTabletWide) 64.dp else 40.dp
-    val landscapeKeyHeight = if (isTabletWide) 72.dp else 46.dp
-    val landscapeKeyWidth = if (isTabletWide) 52.dp else 28.dp 
-    val localizedLandscapeKeyWidth = if (isTabletWide) 42.dp else 24.dp
+    val isCompactHeight = configuration.screenHeightDp < 480
+    
+    val landscapeCellSize = when {
+        isCompactHeight -> 44.dp // Priority 1: Fit phone height
+        isTabletWide -> 64.dp    // Priority 2: Use large size for wide tablets
+        else -> 38.dp
+    }
+    val landscapeKeyHeight = when {
+        isCompactHeight -> 48.dp
+        isTabletWide -> 72.dp
+        else -> 42.dp
+    }
+    val landscapeKeyWidth = when {
+        isCompactHeight -> 32.dp
+        isTabletWide -> 52.dp
+        else -> 26.dp
+    }
+    val localizedLandscapeKeyWidth = when {
+        isCompactHeight -> 28.dp
+        isTabletWide -> 42.dp
+        else -> 22.dp
+    }
     
     val context = LocalContext.current
     val filePickerLauncher = rememberLauncherForActivityResult(
@@ -112,12 +128,6 @@ fun GameScreen(viewModel: GameViewModel) {
 
     val currentMessage = uiState.message?.asString()
 
-    LaunchedEffect(currentMessage) {
-        currentMessage?.let {
-            snackbarHostState.showSnackbar(it)
-        }
-    }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -134,6 +144,13 @@ fun GameScreen(viewModel: GameViewModel) {
                             contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                         ) {
                             Text("${uiState.possibleWordsCount}")
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        Badge(
+                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                        ) {
+                            Text("${uiState.points}")
                         }
                     }
                 },
@@ -155,6 +172,13 @@ fun GameScreen(viewModel: GameViewModel) {
                             onDismissRequest = { showMenu = false }
                         ) {
                             DropdownMenuItem(
+                                text = { Text(stringResource(R.string.menu_points)) },
+                                onClick = {
+                                    showMenu = false
+                                    viewModel.showPointsDialog()
+                                }
+                            )
+                            DropdownMenuItem(
                                 text = { Text(stringResource(R.string.menu_settings)) },
                                 onClick = {
                                     showMenu = false
@@ -173,7 +197,7 @@ fun GameScreen(viewModel: GameViewModel) {
                 }
             )
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHost = { }
     ) { innerPadding ->
         if (uiState.showPossibleWordsDialog) {
             dk.rpix.wordle.ui.components.HintDialog(
@@ -362,24 +386,6 @@ fun GameScreen(viewModel: GameViewModel) {
             )
         }
 
-        if (uiState.showConfirmWordListDialog) {
-            AlertDialog(
-                onDismissRequest = viewModel::dismissConfirmWordListDialog,
-                title = { Text(stringResource(R.string.confirm_word_list_title)) },
-                text = { Text(stringResource(R.string.confirm_word_list_text)) },
-                confirmButton = {
-                    Button(onClick = { viewModel.showMatchingWords() }) {
-                        Text(stringResource(R.string.btn_yes))
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = viewModel::dismissConfirmWordListDialog) {
-                        Text(stringResource(R.string.btn_no))
-                    }
-                }
-            )
-        }
-
         if (uiState.showNewGameConfirmDialog) {
             AlertDialog(
                 onDismissRequest = viewModel::dismissNewGameConfirmDialog,
@@ -398,11 +404,49 @@ fun GameScreen(viewModel: GameViewModel) {
             )
         }
 
+        if (uiState.showHintConfirmDialog) {
+            AlertDialog(
+                onDismissRequest = viewModel::dismissHintConfirmDialog,
+                title = { Text(stringResource(R.string.hint_confirm_title)) },
+                text = { Text(stringResource(R.string.hint_confirm_text, uiState.pendingHintPrice)) },
+                confirmButton = {
+                    Button(onClick = viewModel::confirmHint) {
+                        Text(stringResource(R.string.btn_buy_hint))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = viewModel::dismissHintConfirmDialog) {
+                        Text(stringResource(R.string.btn_no))
+                    }
+                }
+            )
+        }
+
+        if (uiState.showPointsDialog) {
+            AlertDialog(
+                onDismissRequest = viewModel::dismissPointsDialog,
+                title = { Text(stringResource(R.string.stats_title)) },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        StatsRow(stringResource(R.string.stats_games_played), "${uiState.statistics?.totalGames ?: 0}")
+                        StatsRow(stringResource(R.string.stats_total_points), "${uiState.statistics?.totalPoints ?: 0}")
+                        StatsRow(stringResource(R.string.stats_average_points), "%.1f".format(uiState.statistics?.averagePoints ?: 0f))
+                    }
+                },
+                confirmButton = {
+                    Button(onClick = viewModel::dismissPointsDialog) {
+                        Text(stringResource(R.string.btn_close))
+                    }
+                }
+            )
+        }
+
         if (isWideLayout) {
             Row(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding),
+                    .padding(innerPadding)
+                    .padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -415,16 +459,23 @@ fun GameScreen(viewModel: GameViewModel) {
                     spacing = 4.dp
                 )
 
-                WordleKeyboard(
-                    keyboardState = uiState.keyboardState,
-                    onLetterInput = viewModel::onLetterInput,
-                    onDelete = viewModel::onDelete,
-                    onSubmit = viewModel::onSubmit,
-                    keyWidth = if (language == "da" || language == "de" || language == "es") localizedLandscapeKeyWidth else landscapeKeyWidth,
-                    keyHeight = landscapeKeyHeight,
-                    spacing = 4.dp,
-                    rows = keyboardRows
-                )
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    GameMessageDisplay(currentMessage)
+                    
+                    WordleKeyboard(
+                        keyboardState = uiState.keyboardState,
+                        onLetterInput = viewModel::onLetterInput,
+                        onDelete = viewModel::onDelete,
+                        onSubmit = viewModel::onSubmit,
+                        keyWidth = if (language == "da" || language == "de" || language == "es") localizedLandscapeKeyWidth else landscapeKeyWidth,
+                        keyHeight = landscapeKeyHeight,
+                        spacing = 4.dp,
+                        rows = keyboardRows
+                    )
+                }
             }
         } else {
             Column(
@@ -445,6 +496,9 @@ fun GameScreen(viewModel: GameViewModel) {
                     spacing = portraitSpacing,
                     modifier = Modifier.weight(1f)
                 )
+                
+                GameMessageDisplay(currentMessage)
+                
                 WordleKeyboard(
                     keyboardState = uiState.keyboardState,
                     onLetterInput = viewModel::onLetterInput,
@@ -460,6 +514,43 @@ fun GameScreen(viewModel: GameViewModel) {
                 )
             }
         }
+    }
+}
+
+@Composable
+fun GameMessageDisplay(message: String?) {
+    Box(
+        modifier = Modifier
+            .heightIn(min = 32.dp)
+            .padding(horizontal = 16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        if (message != null) {
+            Surface(
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text(
+                    text = message,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun StatsRow(label: String, value: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(label, style = MaterialTheme.typography.bodyLarge)
+        Text(value, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
     }
 }
 

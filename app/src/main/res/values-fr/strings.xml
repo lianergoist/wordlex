@@ -31,10 +31,17 @@
     <string name="btn_replace">Remplacer</string>
     <string name="msg_import_success">%1$d mots importés avec succès</string>
     <string name="msg_import_empty">Aucun mot valide de 5 lettres trouvé dans le fichier</string>
-    <string name="confirm_word_list_title">Afficher les mots possibles ?</string>
-    <string name="confirm_word_list_text">Êtes-vous sûr de vouloir voir la liste de tous les mots possibles ? Cela pourrait rendre le jeu trop facile.</string>
     <string name="btn_yes">Oui</string>
     <string name="btn_no">Non</string>
     <string name="confirm_new_game_title">Nouveau jeu ?</string>
     <string name="confirm_new_game_text">Êtes-vous sûr de vouloir commencer un nouveau jeu ? Votre progression actuelle sera perdue.</string>
+    <string name="menu_points">Points</string>
+    <string name="stats_title">Statistiques</string>
+    <string name="stats_games_played">Parties jouées</string>
+    <string name="stats_total_points">Total des points</string>
+    <string name="stats_average_points">Moyenne</string>
+    <string name="msg_points_earned">Total des points : %1$d</string>
+    <string name="hint_confirm_title">Acheter un indice ?</string>
+    <string name="hint_confirm_text">Prix de l\'indice : %1$d points.\n\nVoulez-vous continuer ?</string>
+    <string name="btn_buy_hint">Acheter l\'indice</string>
 </resources>
