@@ -433,7 +433,7 @@ class GameViewModel(
     }
 
     fun dismissConfirmWordListDialog() {
-        // No longer used
+        // No longer used, removing logic
     }
 
     fun dismissPossibleWordsDialog() {
