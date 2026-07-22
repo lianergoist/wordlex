@@ -24,8 +24,8 @@
     <string name="lang_de">German</string>
     <string name="lang_fr">French</string>
     <string name="lang_es">Spanish</string>
-    <string name="settings_import_words">Import Words</string>
-    <string name="import_dialog_title">Import Words</string>
+    <string name="settings_import_words">Import New Words</string>
+    <string name="import_dialog_title">Import New Words</string>
     <string name="import_dialog_text">Do you want to add the new words to the existing list or replace it?</string>
     <string name="btn_add">Add</string>
     <string name="btn_replace">Replace</string>
@@ -35,4 +35,6 @@
     <string name="confirm_word_list_text">Are you sure you want to see the list of all possible words? This might make the game too easy.</string>
     <string name="btn_yes">Yes</string>
     <string name="btn_no">No</string>
+    <string name="confirm_new_game_title">New Game?</string>
+    <string name="confirm_new_game_text">Are you sure you want to start a new game? Your current progress will be lost.</string>
 </resources>

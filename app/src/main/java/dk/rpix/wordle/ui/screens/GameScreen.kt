@@ -138,7 +138,7 @@ fun GameScreen(viewModel: GameViewModel) {
                     }
                 },
                 actions = {
-                    IconButton(onClick = { viewModel.startNewGame() }) {
+                    IconButton(onClick = { viewModel.onNewGameClick() }) {
                         Icon(Icons.Rounded.Refresh, contentDescription = stringResource(R.string.btn_new_game))
                     }
                     IconButton(onClick = { viewModel.onHintRequest() }) {
@@ -374,6 +374,24 @@ fun GameScreen(viewModel: GameViewModel) {
                 },
                 dismissButton = {
                     TextButton(onClick = viewModel::dismissConfirmWordListDialog) {
+                        Text(stringResource(R.string.btn_no))
+                    }
+                }
+            )
+        }
+
+        if (uiState.showNewGameConfirmDialog) {
+            AlertDialog(
+                onDismissRequest = viewModel::dismissNewGameConfirmDialog,
+                title = { Text(stringResource(R.string.confirm_new_game_title)) },
+                text = { Text(stringResource(R.string.confirm_new_game_text)) },
+                confirmButton = {
+                    Button(onClick = { viewModel.startNewGame() }) {
+                        Text(stringResource(R.string.btn_yes))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = viewModel::dismissNewGameConfirmDialog) {
                         Text(stringResource(R.string.btn_no))
                     }
                 }

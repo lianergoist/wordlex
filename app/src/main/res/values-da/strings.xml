@@ -24,8 +24,8 @@
     <string name="lang_de">Tysk</string>
     <string name="lang_fr">Fransk</string>
     <string name="lang_es">Spansk</string>
-    <string name="settings_import_words">Importer ord</string>
-    <string name="import_dialog_title">Importer ord</string>
+    <string name="settings_import_words">Importer nye ord</string>
+    <string name="import_dialog_title">Importer nye ord</string>
     <string name="import_dialog_text">Vil du tilføje de nye ord til den eksisterende liste eller erstatte den?</string>
     <string name="btn_add">Tilføj</string>
     <string name="btn_replace">Erstat</string>
@@ -35,4 +35,6 @@
     <string name="confirm_word_list_text">Er du sikker på, at du vil se listen over alle mulige ord? Det kan gøre spillet for nemt.</string>
     <string name="btn_yes">Ja</string>
     <string name="btn_no">Nej</string>
+    <string name="confirm_new_game_title">Nyt spil?</string>
+    <string name="confirm_new_game_text">Er du sikker på, at du vil starte et nyt spil? Dine nuværende fremskridt vil gå tabt.</string>
 </resources>

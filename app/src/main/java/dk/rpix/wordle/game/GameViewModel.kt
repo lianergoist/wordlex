@@ -37,7 +37,8 @@ data class GameUiState(
     val importSettingsLanguage: String = "en",
     val importSettingsReplace: Boolean = false,
     val matchingWords: List<String> = emptyList(),
-    val hintedIndices: Set<Int> = emptySet()
+    val hintedIndices: Set<Int> = emptySet(),
+    val showNewGameConfirmDialog: Boolean = false
 )
 
 class GameViewModel(
@@ -92,6 +93,20 @@ class GameViewModel(
             gameStateRepository.clearGameState()
             updatePossibleWordsCount()
         }
+    }
+
+    fun onNewGameClick() {
+        val state = _uiState.value
+        val hasProgress = state.guesses.isNotEmpty() || state.currentGuess.trim().isNotEmpty()
+        if (!state.isGameOver && hasProgress) {
+            _uiState.update { it.copy(showNewGameConfirmDialog = true) }
+        } else {
+            startNewGame()
+        }
+    }
+
+    fun dismissNewGameConfirmDialog() {
+        _uiState.update { it.copy(showNewGameConfirmDialog = false) }
     }
 
     fun onLetterInput(char: Char) {
