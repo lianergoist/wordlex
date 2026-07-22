@@ -43,26 +43,27 @@ fun GameScreen(viewModel: GameViewModel) {
     
     // Dynamic sizing for Portrait (Stacked)
     val isSmallHeight = configuration.screenHeightDp < 650
-    val isTabletPortrait = configuration.screenHeightDp >= 900 && !isWideLayout
+    // More inclusive tablet detection (e.g. Medium tablets)
+    val isTabletPortrait = configuration.screenWidthDp >= 600 && !isWideLayout
     
     val portraitCellSize = when {
-        isTabletPortrait -> 64.dp
+        isTabletPortrait -> 72.dp // Larger for tablets
         isSmallHeight -> 44.dp
         else -> 52.dp
     }
     val portraitKeyHeight = when {
-        isTabletPortrait -> 72.dp
+        isTabletPortrait -> 84.dp // Larger for tablets
         isSmallHeight -> 48.dp
         else -> 56.dp
     }
     val portraitSpacing = if (isSmallHeight) 6.dp else 8.dp
     
     // Dynamic sizing for Landscape/Wide (Side-by-side)
-    val isTabletWide = configuration.screenWidthDp >= 900
-    val landscapeCellSize = if (isTabletWide) 56.dp else 38.dp
-    val landscapeKeyHeight = if (isTabletWide) 64.dp else 42.dp
-    val landscapeKeyWidth = if (isTabletWide) 42.dp else 28.dp // for standard
-    val localizedLandscapeKeyWidth = if (isTabletWide) 34.dp else 22.dp // for da/de/es
+    val isTabletWide = configuration.screenWidthDp >= 840 // Material Expanded breakpoint
+    val landscapeCellSize = if (isTabletWide) 64.dp else 44.dp
+    val landscapeKeyHeight = if (isTabletWide) 72.dp else 48.dp
+    val landscapeKeyWidth = if (isTabletWide) 52.dp else 32.dp 
+    val localizedLandscapeKeyWidth = if (isTabletWide) 42.dp else 26.dp
     
     val context = LocalContext.current
     val filePickerLauncher = rememberLauncherForActivityResult(
@@ -442,9 +443,9 @@ fun GameScreen(viewModel: GameViewModel) {
                     onDelete = viewModel::onDelete,
                     onSubmit = viewModel::onSubmit,
                     keyWidth = if (language == "da" || language == "de" || language == "es") 
-                        (if (isTabletPortrait) 44.dp else 28.dp) 
+                        (if (isTabletPortrait) 54.dp else 28.dp) 
                     else 
-                        (if (isTabletPortrait) 54.dp else 34.dp),
+                        (if (isTabletPortrait) 64.dp else 34.dp),
                     keyHeight = portraitKeyHeight,
                     spacing = if (language == "da" || language == "de" || language == "es") 4.dp else 6.dp,
                     rows = keyboardRows
